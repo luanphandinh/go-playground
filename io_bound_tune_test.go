@@ -1,4 +1,4 @@
-// Example of IO-Bound speed up
+// Example of IO-Bound tuning
 // When sending multiple get request to server
 // Could speed up by using go routines.
 package go_playground
@@ -41,13 +41,13 @@ func fetchConcurrent() {
 	wg.Wait()
 }
 
-func BenchmarkSequential(b *testing.B) {
+func BenchmarkFetchSequential(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		fetch()
 	}
 }
 
-func BenchmarkConcurrent(b *testing.B) {
+func BenchmarkFetchConcurrent(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		fetchConcurrent()
 	}
