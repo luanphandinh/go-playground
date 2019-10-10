@@ -3,7 +3,8 @@
 This projects is for some fun examples.
 
 #`io_bound_tune_test.go`
-The result is very much depend on the server response, but ultimately the result from running concurrent is remarkable faster.
+* The result is very much depend on the server response, but ultimately the result from running concurrent is remarkable faster.
+* When making a request through network, that have significant latency. Therefor running IO Bound processes in concurrent will have positive impact on performance
 ```bash
 GOGC=off go test -cpu 1 -run none -bench . -benchtime 3s
 goos: darwin
