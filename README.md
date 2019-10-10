@@ -1,4 +1,4 @@
-# go-playground
+# go-tuning-examples
 
 This projects is for some fun examples.
 
