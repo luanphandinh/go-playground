@@ -4,13 +4,13 @@
 // Instead of saving flag `active` inside a object (Object Oriented Programming)
 // -> Then traverse through the list object if active then doSomething()
 
-// We instead have an array of active flag (true or false) (Data Oriented Programming)
-// Loop through the array then doSomething()
+// We instead have an flags of active flag (true or false) (Data Oriented Programming)
+// Loop through the flags then doSomething()
 // It could help acquire a positive performance impact
 //
-// A good notice that sometimes we don't need to put a boolean flag to indicate inside an object
-// It faster to loop through array for `bool`(1 byte)
-// instead of looping through array of heavy object (> 1 byte) just for a bool
+// A good notice that sometimes we don't need to put a boolean flag inside an object
+// It faster to loop through flags array for `bool`(1 byte)
+// instead of looping through flag inside heavy objects (> 1 byte) just for a bool
 //
 // Guidance from: code::dive conference 2014 - Scott Meyers: Cpu Caches and Why You Care
 // https://www.youtube.com/watch?v=WDIkqP4JbkE
@@ -36,7 +36,7 @@ func (obj *Obj) doSomething() {
 }
 
 var prepared bool
-var array []bool
+var flags []bool
 var objects []*Obj
 
 // Here we prepare 10000 records
@@ -46,21 +46,21 @@ func prepareData() {
 	}
 
 	for i := 0; i < 10000; i++ {
-		array = append(array, true)
+		flags = append(flags, true)
 		obj := &Obj{true}
 		objects = append(objects, obj)
 	}
 }
 
 func dataDoSomething() {
-	for _, val := range array {
+	for i, val := range flags {
 		if val {
-			doSomething()
+			objects[i].doSomething()
 		}
 	}
 }
 
-func objectDoSomething() {
+func objectsDoSomething() {
 	for _, obj := range objects {
 		if obj.active {
 			obj.doSomething()
@@ -70,6 +70,7 @@ func objectDoSomething() {
 
 func BenchmarkDataOriented(b *testing.B) {
 	prepareData()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		dataDoSomething()
 	}
@@ -77,7 +78,8 @@ func BenchmarkDataOriented(b *testing.B) {
 
 func BenchmarkObjectOriented(b *testing.B) {
 	prepareData()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		objectDoSomething()
+		objectsDoSomething()
 	}
 }
