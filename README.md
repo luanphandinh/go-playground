@@ -1,7 +1,14 @@
 # go-tuning-examples
 
 This projects is for some fun examples.
+## Table of Contents
+* [Concurrently](#concurrently)
+    * [IO Bound tune](#io-bound-tune)   
+    * [CPU Bound tune](#cpu-bound-tune)
+* [Data Over Object Oriented Tune](#data-over-object-oriented-tune)
+* [String concat tune](#string-concat-tune)
 
+<a name="io-bound-tune"></a>
 ### IO Bound Tune (`io_bound_tune_test.go`)
 * The result is very much depend on the server response, but ultimately the result from running concurrent is remarkable faster.
 * When making a request through network, that have significant latency. Therefor running IO Bound processes in concurrent will have positive impact on performance
@@ -16,6 +23,7 @@ PASS
 ok      github.com/luanphandinh/go-playground   14.246s
 ```
 
+<a name="cpu-bound-tune"></a>
 ### CPU Bound Tune (`cpu_bound_tune_test.go`)
 The result is very much depend on local machine, but ultimately the result from running sequential CPU Bound task with single core is remarkable faster.
 ```bash
@@ -28,6 +36,8 @@ BenchmarkCountConcurrent          500000             11688 ns/op
 PASS
 ok      github.com/luanphandinh/go-playground   10.405s
 ```
+
+<a name="data-over-object-oriented-tune"></a>
 ### Data Over Object Oriented Tune (`data_over_object_oriented_tune_test.go`)
 ```bash
 GOGC=off go test -cpu 1 -run none -bench Oriented -benchtime 3s
@@ -50,6 +60,8 @@ type Obj struct {
 }
 
 // Using flag inside object
+var objects []*Obj
+
 func objectsDoSomething() {
     for _, obj := range objects {
         if obj.active {
@@ -64,6 +76,8 @@ Loop through the array then doSomething()
 It could help acquire a positive performance impact
 ```go
 // Using array of flags
+var flags []bool
+
 func dataDoSomething() {
     for i, val := range flags {
         if val {
@@ -80,6 +94,7 @@ instead of looping through array of heavy object (> 1 byte) just for a bool
 * Guidance from: code::dive conference 2014 - Scott Meyers: Cpu Caches and Why You Care
 https://www.youtube.com/watch?v=WDIkqP4JbkE
 
+<a name="string-concat-tune"></a>
 ### Tune String Concat (`string_concat_tune_test.go`)
 Using `+` for concat string is faster than using `fmt.Sprintf()`
 ```go
