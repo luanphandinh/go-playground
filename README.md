@@ -79,3 +79,25 @@ instead of looping through array of heavy object (> 1 byte) just for a bool
 
 * Guidance from: code::dive conference 2014 - Scott Meyers: Cpu Caches and Why You Care
 https://www.youtube.com/watch?v=WDIkqP4JbkE
+
+### Tune String Concat (`string_concat_tune_test.go`)
+Using `+` for concat string is faster than using `fmt.Sprintf()`
+```go
+func doConcat() string {
+    return "This" + "is" + "simple" + "concat" + "string"
+}
+
+func doFormat() string {
+    return fmt.Sprintf("%s %s %s %s %s", "This", "is", "simple", "format", "string")
+}
+``` 
+```bash
+GOGC=off go test -cpu 1 -run none -bench String -benchtime 3s
+goos: darwin
+goarch: amd64
+pkg: github.com/luanphandinh/go-tuning-examples
+BenchmarkConcatString           5000000000               0.57 ns/op
+BenchmarkConcatStringFormat     20000000               183 ns/op
+PASS
+ok      github.com/luanphandinh/go-tuning-examples      6.884s
+```
