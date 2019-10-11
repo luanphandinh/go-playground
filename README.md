@@ -10,8 +10,6 @@ This projects is for some fun examples.
 
 <a name="io-bound-tune"></a>
 ### IO Bound Tune (`io_bound_tune_test.go`)
-* The result is very much depend on the server response, but ultimately the result from running concurrent is remarkable faster.
-* When making a request through network, that have significant latency. Therefor running IO Bound processes in concurrent will have positive impact on performance
 ```bash
 GOGC=off go test -cpu 1 -run none -bench . -benchtime 3s
 goos: darwin
@@ -22,10 +20,39 @@ BenchmarkConcurrent            3        1481725928 ns/op : ~72.5% faslter
 PASS
 ok      github.com/luanphandinh/go-playground   14.246s
 ```
+When make a request through network that have significant latency -> Current routine will enter wait state and wait for the response
+* Sequential fetch making 5 request with `5 * latency` adding to execution time
+```go
+func fetch() {
+    for i := 0; i < 5; i++ {
+        // replace with localRequest() to see local benchmark
+        res, _ := http.DefaultClient.Do(request())
+        defer res.Body.Close()
+    }
+}
+```
+* Concurrent fetch will help improve latency, when 1 routine enter `wait` state, others `runnable` routine will be taken into `executing` state
+```go
+func fetchConcurrent() {
+    var wg sync.WaitGroup
+    for i := 0; i < 5; i++ {
+        wg.Add(1)
+        go func() {
+            // replace with localRequest() to see local benchmark
+            res, _ := http.DefaultClient.Do(request())
+            defer res.Body.Close()
+            wg.Done()
+        }()
+    }
+    
+    wg.Wait()
+}
+```
+* Therefor running IO Bound processes concurrently will have positive impact on performance
 
 <a name="cpu-bound-tune"></a>
 ### CPU Bound Tune (`cpu_bound_tune_test.go`)
-The result is very much depend on local machine, but ultimately the result from running sequential CPU Bound task with single core is remarkable faster.
+Unlike IO Bound if we use concurrent in CPU Bound, the result might not have a good impact
 ```bash
 GOGC=off go test -cpu 1 -run none -bench Count -benchtime 3s
 goos: darwin
@@ -36,6 +63,42 @@ BenchmarkCountConcurrent          500000             11688 ns/op
 PASS
 ok      github.com/luanphandinh/go-playground   10.405s
 ```
+
+* Sequential count
+```go
+func count() int {
+    count := 0
+    for i := 0; i < 2000; i++ {
+        count++
+    }
+    
+    return count
+}
+```
+* Because `switching context` take times, and it tooks longer than CPU Bound process,
+so running concurrently could cause performance impact
+```go
+// 2 `goroutine` run concurrently 
+func countConcurrent() int {
+    var count int32
+    var wg sync.WaitGroup
+    wg.Add(2)
+    
+    for i := 0; i < 2; i++ {
+        go func() {
+            for j := 0; j < 1000; j++ {
+                atomic.AddInt32(&count, 1)
+            }
+            wg.Done()
+        }()
+    }
+    wg.Wait()
+    
+    return int(count)
+}
+```
+The result is very much depend on local machine, but ultimately the result from running sequential CPU Bound task with single core is remarkable faster.
+
 
 <a name="data-over-object-oriented-tune"></a>
 ### Data Over Object Oriented Tune (`data_over_object_oriented_tune_test.go`)
