@@ -107,10 +107,11 @@ GOGC=off go test -cpu 1 -run none -bench Oriented -benchtime 3s
 goos: darwin
 goarch: amd64
 pkg: github.com/luanphandinh/go-tuning-examples
-BenchmarkDataOriented               1000           8871345 ns/op
-BenchmarkObjectOriented              300          17673123 ns/op
+BenchmarkObjectOriented             1000           5983468 ns/op
+BenchmarkDataArrayOriented          1000           5924401 ns/op
+BenchmarkDataMapOriented            1000           6224669 ns/op
 PASS
-ok      github.com/luanphandinh/go-tuning-examples      16.929s
+ok      github.com/luanphandinh/go-tuning-examples      20.475s
 ```
 
 For a project that running large workload over time
@@ -120,6 +121,7 @@ For a project that running large workload over time
 ```go
 type Obj struct {
     active bool
+    heavy  string
 }
 
 // Using flag inside object
@@ -150,7 +152,7 @@ func dataDoSomething() {
 }
 ```
 
-A good notice that sometimes we don't need to put a boolean flag to indicate inside an object
+A good notice that sometimes we don't need to put a boolean inside an object
 It faster to loop through array for `bool`(1 byte)
 instead of looping through array of heavy object (> 1 byte) just for a bool
 

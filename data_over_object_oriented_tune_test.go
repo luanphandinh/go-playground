@@ -28,6 +28,7 @@ func doSomething() {
 
 type Obj struct {
 	active bool
+	heavy  string
 }
 
 // Same doSomething() but for object
@@ -38,22 +39,34 @@ func (obj *Obj) doSomething() {
 var prepared bool
 var flags []bool
 var objects []*Obj
+var flagObjMap map[int]bool
 
 // Here we prepare 10000 records
 func prepareData() {
 	if prepared {
 		return
 	}
+	flagObjMap = make(map[int]bool)
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 20000; i++ {
 		flags = append(flags, true)
-		obj := &Obj{true}
+		flagObjMap[i] = true
+		obj := &Obj{true, "This make object heavier than the array a little bit"}
 		objects = append(objects, obj)
 	}
+	prepared = true
 }
 
 func dataDoSomething() {
 	for i, val := range flags {
+		if val {
+			objects[i].doSomething()
+		}
+	}
+}
+
+func mapDoSomething() {
+	for i, val := range flagObjMap {
 		if val {
 			objects[i].doSomething()
 		}
@@ -68,7 +81,15 @@ func objectsDoSomething() {
 	}
 }
 
-func BenchmarkDataOriented(b *testing.B) {
+func BenchmarkObjectOriented(b *testing.B) {
+	prepareData()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		objectsDoSomething()
+	}
+}
+
+func BenchmarkDataArrayOriented(b *testing.B) {
 	prepareData()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -76,10 +97,10 @@ func BenchmarkDataOriented(b *testing.B) {
 	}
 }
 
-func BenchmarkObjectOriented(b *testing.B) {
+func BenchmarkDataMapOriented(b *testing.B) {
 	prepareData()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		objectsDoSomething()
+		mapDoSomething()
 	}
 }
