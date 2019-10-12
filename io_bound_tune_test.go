@@ -34,7 +34,7 @@ func request() *http.Request {
 // goos: darwin
 // goarch: amd64
 // pkg: github.com/luanphandinh/go-tuning-examples
-// BenchmarkFetchSequential            2000           3256988 ns/op
+// BenchmarkIOFetchSequential            2000           3256988 ns/op
 // BenchmarkFetchConcurrent            2000           6039788 ns/op
 // PASS
 // ok      github.com/luanphandinh/go-tuning-examples      19.562s
@@ -73,13 +73,13 @@ func fetchConcurrent() {
 	wg.Wait()
 }
 
-func BenchmarkFetchSequential(b *testing.B) {
+func BenchmarkIOFetchSequential(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		fetch()
 	}
 }
 
-func BenchmarkFetchConcurrent(b *testing.B) {
+func BenchmarkIOFetchConcurrent(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		fetchConcurrent()
 	}

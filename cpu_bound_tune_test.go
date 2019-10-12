@@ -37,7 +37,7 @@ func countConcurrent() int {
 	return int(count)
 }
 
-func BenchmarkCountSequential(b *testing.B) {
+func BenchmarkCPUCountSequential(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		count()
 	}
@@ -46,7 +46,7 @@ func BenchmarkCountSequential(b *testing.B) {
 // When running CPU Bound
 // 		This func will spend times on context-switching between goroutines
 //		Could be performance affect with 1 CPU Core
-func BenchmarkCountConcurrent(b *testing.B) {
+func BenchmarkCPUCountConcurrent(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		countConcurrent()
 	}

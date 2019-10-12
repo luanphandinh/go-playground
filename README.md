@@ -5,20 +5,22 @@ This projects is for some fun examples.
 * [Concurrently](#concurrently)
     * [IO Bound tune](#io-bound-tune)   
     * [CPU Bound tune](#cpu-bound-tune)
+* [2D Array, Row or Col Travel faster ????](#row-or-column-traverse-tune)
 * [Data Over Object Oriented Tune](#data-over-object-oriented-tune)
 * [String concat tune](#string-concat-tune)
+* [References](#references)
 
 <a name="io-bound-tune"></a>
 ### IO Bound Tune (`io_bound_tune_test.go`)
 ```bash
-GOGC=off go test -cpu 1 -run none -bench . -benchtime 3s
+GOGC=off go test -cpu 1 -run none -bench IO -benchtime 3s
 goos: darwin
 goarch: amd64
-pkg: github.com/luanphandinh/go-playground
-BenchmarkSequential            1        5396369911 ns/op
-BenchmarkConcurrent            3        1481725928 ns/op : ~72.5% faslter
+pkg: github.com/luanphandinh/go-tuning-examples
+BenchmarkIOFetchSequential             1        5965586590 ns/op
+BenchmarkIOFetchConcurrent             3        1137740573 ns/op
 PASS
-ok      github.com/luanphandinh/go-playground   14.246s
+ok      github.com/luanphandinh/go-tuning-examples      13.592s
 ```
 When make a request through network that have significant latency -> Current routine will enter wait state and wait for the response
 * Sequential fetch making 5 request with `5 * latency` adding to execution time
@@ -54,14 +56,14 @@ func fetchConcurrent() {
 ### CPU Bound Tune (`cpu_bound_tune_test.go`)
 Unlike IO Bound if we use concurrent in CPU Bound, the result might not have a good impact
 ```bash
-GOGC=off go test -cpu 1 -run none -bench Count -benchtime 3s
+GOGC=off go test -cpu 1 -run none -bench CPUCount -benchtime 3s
 goos: darwin
 goarch: amd64
-pkg: github.com/luanphandinh/go-playground
-BenchmarkCountSequential         5000000               644 ns/op
-BenchmarkCountConcurrent          500000             11688 ns/op
+pkg: github.com/luanphandinh/go-tuning-examples
+BenchmarkCPUCountSequential     10000000               614 ns/op
+BenchmarkCPUCountConcurrent       500000             11235 ns/op
 PASS
-ok      github.com/luanphandinh/go-playground   10.405s
+ok      github.com/luanphandinh/go-tuning-examples      13.088s
 ```
 
 * Sequential count
@@ -99,6 +101,22 @@ func countConcurrent() int {
 ```
 The result is very much depend on local machine, but ultimately the result from running sequential CPU Bound task with single core is remarkable faster.
 
+<a name="row-or-column-traverse-tune"></a>
+### 2D Array, Row or Col Travel faster
+```bash
+GOGC=off go test -cpu 1 -run none -bench Traverse -benchtime 3s
+goos: darwin
+goarch: amd64
+pkg: github.com/luanphandinh/go-tuning-examples
+BenchmarkRowTraverse          50          85126221 ns/op
+BenchmarkColTraverse           5         820629562 ns/op
+PASS
+ok      github.com/luanphandinh/go-tuning-examples      13.050s
+```
+[As explained by Scott Meyers: Cpu Caches and Why You Care.](#references)
+* Even though the traverse code between column and row are pretty much identical.
+* But reading from `right` to `left` is more `"cached friendly"`, the under hardware with cached mechanism can help to predict the next index of array you are refer to
+* Traverse by `column` could cause miss cached.
 
 <a name="data-over-object-oriented-tune"></a>
 ### Data Over Object Oriented Tune (`data_over_object_oriented_tune_test.go`)
@@ -181,3 +199,11 @@ BenchmarkConcatStringFormat     20000000               183 ns/op
 PASS
 ok      github.com/luanphandinh/go-tuning-examples      6.884s
 ```
+
+<a name="references"></a>
+### References:
+* William Kennedy: [Scheduling In Go : Part I - OS Scheduler](https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html)
+* William Kennedy: [ Scheduling In Go : Part II - Go Scheduler](https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html)
+* William Kennedy: [Scheduling In Go : Part III - Concurrency](https://www.ardanlabs.com/blog/2018/12/scheduling-in-go-part3.html)
+* Scott Meyers: [Cpu Caches and Why You Care](https://www.youtube.com/watch?v=WDIkqP4JbkE)
+  
