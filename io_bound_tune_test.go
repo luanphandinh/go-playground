@@ -1,7 +1,7 @@
 // Example of IO-Bound tuning
 // When sending multiple get request to server
 // Could speed up by using go routines.
-package go_playground
+package go_tuning_examples
 
 import (
 	"net/http"

@@ -1,4 +1,4 @@
-package go_playground
+package go_tuning_examples
 
 import "testing"
 

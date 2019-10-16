@@ -14,7 +14,7 @@
 //
 // Guidance from: code::dive conference 2014 - Scott Meyers: Cpu Caches and Why You Care
 // https://www.youtube.com/watch?v=WDIkqP4JbkE
-package go_playground
+package go_tuning_examples
 
 import "testing"
 
