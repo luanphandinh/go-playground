@@ -179,25 +179,37 @@ https://www.youtube.com/watch?v=WDIkqP4JbkE
 
 <a name="string-concat-tune"></a>
 ### Tune String Concat (`string_concat_tune_test.go`)
-Using `+` for concat string is faster than using `fmt.Sprintf()`
+* Using `+` for concat string is faster than using `fmt.Sprintf()`
+* Also the more you use `fmt.Sprintf()` the more resource wasted
 ```go
 func doConcat() string {
-    return "This" + "is" + "simple" + "concat" + "string"
+	return "This" + "is" + "simple" + "concat" + "string" + "benchmark" + "testing"
 }
 
 func doFormat() string {
-    return fmt.Sprintf("%s %s %s %s %s", "This", "is", "simple", "format", "string")
+	return fmt.Sprintf("%s %s %s %s %s %s %s", "This", "is", "simple", "format", "string", "benchmark", "testing")
+}
+
+func doFormatMultiple() string {
+	p1 := fmt.Sprintf("%s", "This")
+	p2 := fmt.Sprintf("%s", "is")
+	p3 := fmt.Sprintf("%s", "simple")
+	p4 := fmt.Sprintf("%s %s", "format", "string")
+	p5 := fmt.Sprintf("%s %s", "benchmark", "testing")
+
+	return p1 + p2 + p3 + p4 + p5
 }
 ``` 
 ```bash
-GOGC=off go test -cpu 1 -run none -bench String -benchtime 3s
+GOGC=off go test -cpu 1 -run none -bench ConcatString -benchtime 3s
 goos: darwin
 goarch: amd64
 pkg: github.com/luanphandinh/go-tuning-examples
-BenchmarkConcatString           5000000000               0.57 ns/op
-BenchmarkConcatStringFormat     20000000               183 ns/op
+BenchmarkConcatString                   5000000000               0.32 ns/op
+BenchmarkConcatStringFormat             20000000               285 ns/op
+BenchmarkConcatStringFormatMultiple     10000000               539 ns/op
 PASS
-ok      github.com/luanphandinh/go-tuning-examples      6.884s
+ok      github.com/luanphandinh/go-tuning-examples      14.022s
 ```
 
 <a name="references"></a>
