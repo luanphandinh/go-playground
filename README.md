@@ -179,25 +179,31 @@ https://www.youtube.com/watch?v=WDIkqP4JbkE
 
 <a name="string-concat-tune"></a>
 ### Tune String Concat (`string_concat_tune_test.go`)
+* Using `byte` with `append` is fastest.
 * Using `+` for concat string is faster than using `fmt.Sprintf()`
-* Also the more you use `fmt.Sprintf()` the more resource wasted
+* Also the more you use `fmt.Sprintf()` or `+=` the more resource wasted
 ```go
-func doConcat() string {
-	return "This" + "is" + "simple" + "concat" + "string" + "benchmark" + "testing"
+
+func doConcat(str1 string, str2 string, str3 string) string {
+	a := str1
+	a += str2
+	a += str3
+
+	return a
 }
 
-func doFormat() string {
-	return fmt.Sprintf("%s %s %s %s %s %s %s", "This", "is", "simple", "format", "string", "benchmark", "testing")
+func doByteConcatWithKnownLength(str1 string, str2 string, str3 string) string {
+	length := len(str1) + len(str2) + len(str3)
+	a := make([]byte, 0, length)
+	a = append(a, str1...)
+	a = append(a, str2...)
+	a = append(a, str3...)
+
+	return string(a)
 }
 
-func doFormatMultiple() string {
-	p1 := fmt.Sprintf("%s", "This")
-	p2 := fmt.Sprintf("%s", "is")
-	p3 := fmt.Sprintf("%s", "simple")
-	p4 := fmt.Sprintf("%s %s", "format", "string")
-	p5 := fmt.Sprintf("%s %s", "benchmark", "testing")
-
-	return p1 + p2 + p3 + p4 + p5
+func doFormat(str1 string, str2 string, str3 string) string {
+	return fmt.Sprintf("%s %s %s", str1, str2, str3)
 }
 ``` 
 ```bash
@@ -205,11 +211,12 @@ GOGC=off go test -cpu 1 -run none -bench ConcatString -benchtime 3s
 goos: darwin
 goarch: amd64
 pkg: github.com/luanphandinh/go-tuning-examples
-BenchmarkConcatString                   5000000000               0.32 ns/op
-BenchmarkConcatStringFormat             20000000               285 ns/op
-BenchmarkConcatStringFormatMultiple     10000000               539 ns/op
+BenchmarkConcatString                           50000000                75.8 ns/op            24 B/op          2 allocs/op
+BenchmarkConcatStringFormat                     20000000               207 ns/op              64 B/op          4 allocs/op
+BenchmarkConcatStringFormatMultiple             20000000               339 ns/op              80 B/op          7 allocs/op
+BenchmarkConcatStringByBytes                    100000000               53.7 ns/op            24 B/op          2 allocs/op
+BenchmarkConcatStringByBytesKnownLength         200000000               28.8 ns/op            16 B/op          1 allocs/op
 PASS
-ok      github.com/luanphandinh/go-tuning-examples      14.022s
 ```
 
 <a name="references"></a>
